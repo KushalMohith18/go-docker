@@ -1,4 +1,4 @@
-name: Docker Build (Buildx Enabled)
+name: Docker Build (Buildx + GHA Cache)
 
 on:
   push:
@@ -9,14 +9,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout source
         uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build image (Buildx)
+      - name: Build Docker image (with cache)
         run: |
           docker buildx build \
             --progress=plain \
+            --cache-from=type=gha \
+            --cache-to=type=gha,mode=max \
             -t go-docker:test .
