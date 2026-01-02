@@ -1,0 +1,18 @@
+name: Docker Build (No Cache)
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker image (cold build)
+        run: |
+          docker build -t go-docker-nocache:latest .
