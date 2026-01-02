@@ -1,4 +1,4 @@
-name: Docker Build (Buildx Enabled)
+name: Docker Build with Buildx Cache
 
 on:
   push:
@@ -13,12 +13,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # ✅ ENABLE BUILDX
+      # 1️⃣ Enable Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Docker image (no cache yet)
+      # 2️⃣ Restore cache
+      - name: Restore Docker layer cache
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      # 3️⃣ Build using cache
+      - name: Build Docker image
         run: |
           docker buildx build \
-            --load \
-            -t go-docker:buildx .
+            --cache-from=type=local,src=/tmp/.buildx-cache \
+            --cache-to=type=local,dest=/tmp/.buildx-cache,mode=max \
+            -t go-docker:latest .
