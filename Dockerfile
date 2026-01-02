@@ -1,22 +1,24 @@
 # syntax=docker/dockerfile:1.4
 
-FROM golang:1.21-alpine as builder
+FROM golang:1.21-alpine AS builder
 
 WORKDIR /src
 
-# Use buildkit cache for module cache
-RUN --mount=type=cache,target=/root/.cache/go-build \
-    --mount=type=cache,target=/go/pkg/mod \
-    go mod download
+# Copy go.mod first (still good practice)
+COPY go.mod ./
 
-COPY . .
+# Copy source
+COPY app ./app
 
+# Build with cache
 RUN --mount=type=cache,target=/root/.cache/go-build \
-    --mount=type=cache,target=/go/pkg/mod \
     go build -o app ./app
+
+# ----------------------------
 
 FROM alpine:latest
 WORKDIR /app
 COPY --from=builder /src/app .
 
+EXPOSE 8080
 CMD ["./app"]
