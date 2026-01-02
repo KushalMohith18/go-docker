@@ -15,10 +15,8 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build image (Buildx + cache)
+      - name: Build image (Buildx)
         run: |
           docker buildx build \
             --progress=plain \
-            --cache-from=type=gha \
-            --cache-to=type=gha,mode=max \
             -t go-docker:test .
