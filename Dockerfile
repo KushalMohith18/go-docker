@@ -4,19 +4,19 @@ FROM golang:1.21-alpine AS builder
 
 WORKDIR /src
 
-# Copy go.mod first (still good practice)
+# Copy module file first (cache key)
 COPY go.mod ./
 
-# Copy source
+# Copy application source
 COPY app ./app
 
-# Build with cache
-RUN --mount=type=cache,target=/root/.cache/go-build \
-    go build -o app ./app
+# Build (LAYER CACHE, not cache mount)
+RUN go build -o app ./app
 
 # ----------------------------
 
 FROM alpine:latest
+
 WORKDIR /app
 COPY --from=builder /src/app .
 
